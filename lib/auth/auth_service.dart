@@ -14,7 +14,7 @@ class AuthService {
 
       final cred = GoogleAuthProvider.credential(
           idToken: googleAuth?.idToken, accessToken: googleAuth?.accessToken);
-      
+
       return await _auth.signInWithCredential(cred);
     } catch (e) {
       print(e.toString());
@@ -44,6 +44,14 @@ class AuthService {
       log("Something went wrong");
     }
     return null;
+  }
+
+  Future<void> sendPasswordResetLink(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
   Future<void> signout() async {
