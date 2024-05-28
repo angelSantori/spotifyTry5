@@ -48,3 +48,26 @@ class PasswordVisibilityToggle extends ChangeNotifier {
     notifyListeners();
   }
 }
+
+//Validar contraseña
+class PasswordValidator {
+  // Expresión regular para validar la contraseña
+  static final RegExp regex = RegExp(
+    r'^(?=.*[A-Z])(?=.*[!@#\$^&*~()_+\[\]{}|;:\",.<>?/])(?=.*[0-9])(?=.*[a-z]).{8,}$',
+  );
+
+  static bool isValid(String password) {
+    return regex.hasMatch(password);
+  }
+}
+
+//Validar Correo
+class EmailValidator {
+  static final RegExp _emailRegExp = RegExp(
+    r'^[a-zA-Z0-9.!#$%&\*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*\.com$',
+  );
+
+  static bool isValid(String email) {
+    return _emailRegExp.hasMatch(email);
+  }
+}

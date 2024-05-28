@@ -19,6 +19,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final _email = TextEditingController();
   final _password = TextEditingController();
 
+  bool _isLoading = false;
+
   @override
   void dispose() {
     super.dispose();
@@ -79,10 +81,24 @@ class _LoginScreenState extends State<LoginScreen> {
                 },
               ),
               const SizedBox(height: 30),
-              CustomButton(
-                label: "Login",
-                onPressed: _login,
+              ElevatedButton(
+                onPressed: _isLoading ? null : _login,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  padding: const EdgeInsets.symmetric(horizontal: 90),
+                ),
+                child: _isLoading
+                    ? const CircularProgressIndicator()
+                    : const Text(
+                        'Signup',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
               ),
+              const SizedBox(height: 10),
+              //const CustomButton(label: "Signin with Google"),
               const SizedBox(height: 30),
               Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 const Text("Already have an account? "),
@@ -111,12 +127,92 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
   _login() async {
+    //Inicio de proceso
+    setState(() {
+      _isLoading = true;
+    });
+
+    // Verifica si todos los campos están llenos
+    if (_email.text.isEmpty || _password.text.isEmpty) {
+      // Muestra un AlertDialog con el mensaje de error
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Error'),
+            content: const Text('Por favor, completa todos los campos.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Cierra el AlertDialog
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+      setState(() {
+        _isLoading = false;
+      });
+      return; // Detiene el proceso de registro
+    }
+
+    //Verifica si es un correo valido
+    final String email = _email.text;
+    if (!EmailValidator.isValid(email)) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Error'),
+            content: const Text('Ingresa un correo valido'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Cierra el AlertDialog
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
+    //Intento acceder
     final user =
         await _auth.loginUserWithEmailAndPassword(_email.text, _password.text);
 
     if (user != null) {
       log("User Logged In");
       goToHome(context);
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Error'),
+            content: const Text('Usuario o contraseña incorrectos'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Cierra el AlertDialog
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
     }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 }

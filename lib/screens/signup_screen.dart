@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:spoty_try5/auth/services.dart';
-import 'package:spoty_try5/widgets/zwidgets.dart';
 import 'package:spoty_try5/screens/zcreens.dart';
 import 'package:spoty_try5/auth/auth_service.dart';
 
@@ -19,6 +18,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final _name = TextEditingController();
   final _email = TextEditingController();
   final _password = TextEditingController();
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -75,8 +75,8 @@ class _SignupScreenState extends State<SignupScreen> {
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
-                        borderSide:
-                            BorderSide(color: Color.fromARGB(255, 192, 16, 16)),
+                        borderSide: const BorderSide(
+                            color: Color.fromARGB(255, 192, 16, 16)),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -89,9 +89,21 @@ class _SignupScreenState extends State<SignupScreen> {
                 },
               ),
               const SizedBox(height: 30),
-              CustomButton(
-                label: "Signup",
-                onPressed: _signup,
+              ElevatedButton(
+                onPressed: _isLoading ? null : _signup,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  padding: const EdgeInsets.symmetric(horizontal: 90),
+                ),
+                child: _isLoading
+                    ? const CircularProgressIndicator()
+                    : const Text(
+                        'Signup',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
               ),
               const SizedBox(height: 30),
               Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -121,11 +133,102 @@ class _SignupScreenState extends State<SignupScreen> {
       );
 
   _signup() async {
+    //Inicio de proceso
+    setState(() {
+      _isLoading = true;
+    });
+
+    // Verifica si todos los campos están llenos
+    if (_name.text.isEmpty || _email.text.isEmpty || _password.text.isEmpty) {
+      // Muestra un AlertDialog con el mensaje de error
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Error'),
+            content: const Text('Por favor, completa todos los campos.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Cierra el AlertDialog
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+      setState(() {
+        _isLoading = false;
+      });
+      return; // Detiene el proceso de registro
+    }
+
+    //Verifica si es un correo valido
+    final String email = _email.text;
+    if (!EmailValidator.isValid(email)) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Error'),
+            content: const Text(
+                'Ingresa un correo valido'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Cierra el AlertDialog
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+      setState(() {
+        _isLoading = false;
+      });
+      return;       
+    }
+
+    //Restricciones para la contraseña
+    final String password = _password.text;
+    if (!PasswordValidator.isValid(password)) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Error'),
+            content: const Text(
+                'La contraseña debe tener al menos 8 caracteres y contener al menos una mayúscula, un número y un carácter especial.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Cierra el AlertDialog
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+      setState(() {
+        _isLoading = false;
+      });
+      return; // No continuar con el proceso de registro
+    }
+
+    //Crar registro
     final user =
         await _auth.createUserWithEmailAndPassword(_email.text, _password.text);
     if (user != null) {
       log("User Created Succesfully");
       goToHome(context);
     }
+
+    //Fin de proceso
+    setState(() {
+      _isLoading = false;
+    });
   }
 }
