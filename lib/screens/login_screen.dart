@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:spoty_try5/auth/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:spoty_try5/screens/zcreens.dart';
-import 'package:spoty_try5/widgets/zwidgets.dart';
 import 'package:spoty_try5/auth/services.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -20,6 +19,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _password = TextEditingController();
 
   bool _isLoading = false;
+  bool _isLoadingGoogle = false;
 
   @override
   void dispose() {
@@ -67,8 +67,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
-                        borderSide:
-                            BorderSide(color: Color.fromARGB(255, 192, 16, 16)),
+                        borderSide: const BorderSide(
+                            color: Color.fromARGB(255, 192, 16, 16)),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -98,7 +98,23 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
               ),
               const SizedBox(height: 10),
-              //const CustomButton(label: "Signin with Google"),
+              ElevatedButton(
+                onPressed: _isLoadingGoogle ? null : _loginWithGoogle,
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    padding: const EdgeInsets.symmetric(horizontal: 50)),
+                child: _isLoadingGoogle
+                    ? const CircularProgressIndicator()
+                    : const Text(
+                        "Signin with Google",
+                        style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
+                      ),
+              ),
               const SizedBox(height: 30),
               Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 const Text("Already have an account? "),
@@ -213,6 +229,45 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() {
       _isLoading = false;
+    });
+  }
+
+  _loginWithGoogle() async {
+    //Inicio proceso
+    setState(() {
+      _isLoadingGoogle = true;
+    });
+
+    try {
+      // Iniciar sesión con Google
+      await _auth.loginWithGoogle();
+      // Navegar a la pantalla de inicio
+      goToHome(context);
+    } catch (e) {
+      // Manejar cualquier error que ocurra durante el inicio de sesión con Google
+      print(e.toString());
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Error'),
+            content:
+                const Text('Ocurrió un error al iniciar sesión con Google.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Cierra el AlertDialog
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+
+    setState(() {
+      _isLoadingGoogle = false;
     });
   }
 }
