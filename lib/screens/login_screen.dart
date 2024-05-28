@@ -1,8 +1,10 @@
 import 'dart:developer';
+import 'package:flutter/services.dart';
 import 'package:spoty_try5/auth/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:spoty_try5/screens/zcreens.dart';
 import 'package:spoty_try5/widgets/zwidgets.dart';
+import 'package:spoty_try5/auth/filtros.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -35,13 +37,14 @@ class _LoginScreenState extends State<LoginScreen> {
             const Text("Login",
                 style: TextStyle(fontSize: 40, fontWeight: FontWeight.w500)),
             const SizedBox(height: 50),
-            CustomTextField(
+            CustomTextField2(
               hint: "Enter Email",
               label: "Email",
               controller: _email,
+              inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'\s'))],
             ),
             const SizedBox(height: 20),
-            CustomTextField(
+            CustomTextField2(
               hint: "Enter Password",
               label: "Password",
               controller: _password,
