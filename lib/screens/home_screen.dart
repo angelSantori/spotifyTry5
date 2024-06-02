@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:spoty_try5/auth/auth_service.dart';
 import 'package:spoty_try5/provider/api_provider.dart';
 import 'package:spoty_try5/screens/zcreens.dart';
 import 'package:spoty_try5/widgets/zwidgets.dart';
@@ -14,6 +15,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final auth = AuthService();
   final scrollController = ScrollController();
   bool isLoading = false;
   int page = 1;
@@ -87,8 +89,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               ListTile(
-                leading: const Icon(Icons.favorite),
-                title: const Text('Favorites'),
+                leading: const Icon(
+                  Icons.favorite,
+                  color: Colors.green,
+                ),
+                title: const Text(
+                  'Favorites',
+                  style: TextStyle(
+                    color: Colors.green,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 onTap: () {
                   Navigator.push(
                       context,
@@ -96,9 +108,49 @@ class _HomeScreenState extends State<HomeScreen> {
                           builder: (context) => const FavoriteScreen()));
                 },
               ),
-              const ListTile(                
-                leading: Icon(Icons.logout),
-                title: Text('Logout'),
+              ListTile(
+                leading: const Icon(
+                  Icons.logout,
+                  color: Colors.red,
+                ),
+                title: const Text(
+                  'Logout',
+                  style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold),
+                ),
+                onTap: () async {
+                  bool? confirmLogout = await showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('Confirmación'),
+                        content:
+                            const Text('¿Seguro que quieres cerrar sesión?'),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(false); //Cancelar
+                            },
+                            child: const Text('Cancelar'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(true); //Confirmar
+                            },
+                            child: const Text('Cerrar sesión'),
+                          )
+                        ],
+                      );
+                    },
+                  );
+                  if (confirmLogout == true) {
+                    await auth.signout();
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                        'login', (Route<dynamic> route) => false);
+                  }
+                },
               ),
             ],
           ),

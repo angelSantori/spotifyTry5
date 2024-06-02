@@ -22,6 +22,9 @@ class MyApp extends StatelessWidget {
         title: 'Rick & Morty',
         debugShowCheckedModeBanner: false,
         home: const LoginScreen(),
+        routes: {
+          'login':(_) => const LoginScreen(), 
+        },
         theme: ThemeData(
           brightness: Brightness.dark,
           useMaterial3: true,
