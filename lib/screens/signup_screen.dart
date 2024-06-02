@@ -40,7 +40,11 @@ class _SignupScreenState extends State<SignupScreen> {
             children: [
               const Spacer(),
               const Text("Signup",
-                  style: TextStyle(fontSize: 40, fontWeight: FontWeight.w500)),
+                  style: TextStyle(
+                    fontSize: 40,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
+                  )),
               const SizedBox(
                 height: 50,
               ),
@@ -93,7 +97,7 @@ class _SignupScreenState extends State<SignupScreen> {
               ElevatedButton(
                 onPressed: _isLoading ? null : _signup,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
+                  backgroundColor: Colors.green[300],
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10)),
                   padding: const EdgeInsets.symmetric(horizontal: 90),
@@ -103,7 +107,10 @@ class _SignupScreenState extends State<SignupScreen> {
                     : const Text(
                         'Signup',
                         style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
               ),
               const SizedBox(height: 30),
@@ -139,7 +146,7 @@ class _SignupScreenState extends State<SignupScreen> {
       _isLoading = true;
     });
 
-    final String email = _email.text;    
+    final String email = _email.text;
     final String password = _password.text;
 
     // Verifica si todos los campos están llenos
