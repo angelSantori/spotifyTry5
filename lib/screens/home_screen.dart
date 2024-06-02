@@ -1,40 +1,115 @@
 import 'package:flutter/material.dart';
-import 'package:spoty_try5/auth/auth_service.dart';
+import 'package:provider/provider.dart';
+import 'package:spoty_try5/provider/api_provider.dart';
 import 'package:spoty_try5/widgets/zwidgets.dart';
-import 'package:spoty_try5/screens/zcreens.dart';
+//import 'package:spoty_try5/auth/auth_service.dart';
+//import 'package:spoty_try5/screens/zcreens.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final auth = AuthService();
-    return Scaffold(
-      body: Align(
-        alignment: Alignment.center,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              "Welcome User",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w400),
-            ),
-            const SizedBox(height: 20),
-            CustomButton(
-              label: "Sign Out",
-              onPressed: () async {
-                await auth.signout();
-                goToLogin(context);
-              },
-            )
-          ],
-        ),
-      ),
-    );
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final scrollController = ScrollController();
+  bool isLoading = false;
+  int page = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    final apiProvider = Provider.of<ApiProvider>(context, listen: false);
+    apiProvider.getCharacters(page);
+    scrollController.addListener(() async {
+      if (scrollController.position.pixels ==
+          scrollController.position.maxScrollExtent) {
+        setState(() {
+          isLoading = true;
+        });
+        page++;
+        await apiProvider.getCharacters(page);
+        setState(() {
+          isLoading = false;
+        });
+      }
+    });
   }
 
-  goToLogin(BuildContext context) => Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
-      );
+  @override
+  Widget build(BuildContext context) {
+    final apiProvider = Provider.of<ApiProvider>(context);
+    return Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: const Text(
+            "Rick & Morty",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          centerTitle: true,
+          leading: Builder(
+            builder: (context) {
+              return IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () {
+                  Scaffold.of(context).openDrawer();
+                },
+              );
+            },
+          ),
+          actions: [
+            IconButton(
+                onPressed: () {
+                  showSearch(context: context, delegate: SearchCharacter());
+                },
+                icon: const Icon(Icons.search))
+          ],
+        ),
+        drawer: Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              DrawerHeader(
+                decoration: BoxDecoration(color: Colors.green[900]),
+                child: const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'No es Spotify',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              ListTile(
+                leading: Icon(Icons.book),
+                title: Text('Opción 1'),
+              ),
+              ListTile(
+                leading: Icon(Icons.description),
+                title: Text('Opción 2'),
+              ),
+            ],
+          ),
+        ),
+        body: SizedBox(
+          height: double.infinity,
+          width: double.infinity,
+          child: apiProvider.characters.isNotEmpty
+              ? CharacterList(
+                  apiProvider: apiProvider,
+                  isLoading: isLoading,
+                  scrollController: scrollController,
+                )
+              : Center(
+                  child: CircularProgressIndicator(
+                    color: Colors.green[300],
+                  ),
+                ),
+        ));
+  }
 }

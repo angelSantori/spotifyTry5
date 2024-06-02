@@ -1,6 +1,5 @@
 import 'dart:developer';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:spoty_try5/auth/auth_service.dart';
 import 'package:flutter/material.dart';
@@ -86,9 +85,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   alignment: Alignment.centerRight,
                   child: InkWell(
                       onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => ForgotPassword(),));
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const ForgotPassword(),));
                       },
-                      child: Text("¿Olvidaste tu contraseña?"))),
+                      child: const Text("¿Olvidaste tu contraseña?"))),
               const SizedBox(height: 30),
               ElevatedButton(
                 onPressed: _isLoading ? null : _login,
