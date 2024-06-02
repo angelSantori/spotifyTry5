@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 CharacterResponse characterResponseFromJson(String str) => CharacterResponse.fromJson(json.decode(str));
 
@@ -110,6 +111,12 @@ class Character {
         "url": url,
         "created": created?.toIso8601String(),
     };
+
+    //Método fromDocument
+    factory Character.fromDocument(DocumentSnapshot doc) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        return Character.fromJson(data);
+    }
 }
 
 class Location {

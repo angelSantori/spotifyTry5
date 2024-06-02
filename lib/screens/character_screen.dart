@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:spoty_try5/auth/user_model.dart';
+//import 'package:spoty_try5/auth/user_model.dart';
 import 'package:spoty_try5/models/character_model.dart';
 import 'package:spoty_try5/widgets/zwidgets.dart';
 
@@ -104,11 +104,47 @@ class _CharacterScreenState extends State<CharacterScreen> {
   }
 
   Future<void> _toggleCharacterFavorite() async {
-    await toggleFavorite(widget.character.id.toString());
+  User? user = FirebaseAuth.instance.currentUser;
+  if (user != null) {
+    // Obtener una referencia al documento del usuario
+    DocumentReference userDocRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid);
+
+    // Verificar si el personaje ya es un favorito
+    bool isAlreadyFavorite = isFavorite;
+
+    // Agregar o quitar el ID del personaje de la lista de favoritos del usuario
+    if (isAlreadyFavorite) {
+      await userDocRef.update({
+        'favorites': FieldValue.arrayRemove([widget.character.id.toString()])
+      });
+    } else {
+      await userDocRef.update({
+        'favorites': FieldValue.arrayUnion([widget.character.id.toString()])
+      });
+    }
+
+    // Si el personaje no era un favorito antes, almacenar su información en Firestore
+    if (!isAlreadyFavorite) {
+      await FirebaseFirestore.instance
+          .collection('characters') // Colección para almacenar información de personajes
+          .doc(widget.character.id.toString())
+          .set(widget.character.toJson());
+    } else {
+      // Si el personaje era un favorito, eliminar su información de Firestore
+      await FirebaseFirestore.instance
+          .collection('characters')
+          .doc(widget.character.id.toString())
+          .delete();
+    }
+
+    // Actualizar el estado de la variable isFavorite
     setState(() {
       isFavorite = !isFavorite;
     });
   }
+}
 
   Future<void> _checkIfFavorite() async {
     User? user = FirebaseAuth.instance.currentUser;
