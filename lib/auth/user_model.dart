@@ -11,7 +11,7 @@ Future<void> createUserDocument(User user) async {
   });
 }
 
-// Agregar y eliminar favoritos
+//Agregar y eliminar favoritos
 Future<void> toggleFavorite(String characterId) async {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
   User? user = FirebaseAuth.instance.currentUser;

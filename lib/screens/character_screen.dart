@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:spoty_try5/auth/user_model.dart';
 import 'package:spoty_try5/models/character_model.dart';
 import 'package:spoty_try5/widgets/zwidgets.dart';
 
@@ -11,7 +14,13 @@ class CharacterScreen extends StatefulWidget {
 }
 
 class _CharacterScreenState extends State<CharacterScreen> {
-  bool isFaorite = false;
+  bool isFavorite = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkIfFavorite();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,14 +33,10 @@ class _CharacterScreenState extends State<CharacterScreen> {
         actions: [
           IconButton(
             icon: Icon(
-              isFaorite ? Icons.favorite : Icons.favorite_border,
-              color: isFaorite ? Colors.pink[300] : Colors.white,
+              isFavorite ? Icons.favorite : Icons.favorite_border,
+              color: isFavorite ? Colors.pink[300] : Colors.white,
             ),
-            onPressed: () {
-              setState(() {
-                isFaorite = !isFaorite;
-              });
-            },
+            onPressed: _toggleCharacterFavorite,
           ),
         ],
       ),
@@ -96,5 +101,26 @@ class _CharacterScreenState extends State<CharacterScreen> {
         ],
       ),
     ));
+  }
+
+  Future<void> _toggleCharacterFavorite() async {
+    await toggleFavorite(widget.character.id.toString());
+    setState(() {
+      isFavorite = !isFavorite;
+    });
+  }
+
+  Future<void> _checkIfFavorite() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+      List<dynamic> favorites = userDoc.get('favorites');
+      setState(() {
+        isFavorite = favorites.contains(widget.character.id.toString());
+      });
+    }
   }
 }
