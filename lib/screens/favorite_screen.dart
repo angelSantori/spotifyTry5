@@ -60,7 +60,10 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
         future: _favoriteCharactersFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+                child: CircularProgressIndicator(
+              color: Colors.green,
+            ));
           } else if (snapshot.hasError) {
             return const Center(child: Text('Error loading favorites'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -82,7 +85,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                     onPressed: () {
                       _removeFavorite(context, character);
                     },
-                  ),                  
+                  ),
                 );
               },
             );
