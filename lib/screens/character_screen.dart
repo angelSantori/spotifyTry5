@@ -2,9 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:spoty_try5/models/character_model.dart';
 import 'package:spoty_try5/widgets/zwidgets.dart';
 
-class CharacterScreen extends StatelessWidget {  
+class CharacterScreen extends StatefulWidget {
   final Character character;
   const CharacterScreen({super.key, required this.character});
+
+  @override
+  State<CharacterScreen> createState() => _CharacterScreenState();
+}
+
+class _CharacterScreenState extends State<CharacterScreen> {
+  bool isFaorite = false;
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +20,20 @@ class CharacterScreen extends StatelessWidget {
       appBar: AppBar(
         automaticallyImplyLeading: true,
         centerTitle: true,
-        title: Text(character.name!),
+        title: Text(widget.character.name!),
+        actions: [
+          IconButton(
+            icon: Icon(
+              isFaorite ? Icons.favorite : Icons.favorite_border,
+              color: isFaorite ? Colors.pink[300] : Colors.white,
+            ),
+            onPressed: () {
+              setState(() {
+                isFaorite = !isFaorite;
+              });
+            },
+          ),
+        ],
       ),
       body: SizedBox(
         height: double.infinity,
@@ -24,9 +44,9 @@ class CharacterScreen extends StatelessWidget {
               height: size.height * 0.35,
               width: double.infinity,
               child: Hero(
-                tag: character.id!,
+                tag: widget.character.id!,
                 child: Image.network(
-                  character.image!,
+                  widget.character.image!,
                   fit: BoxFit.cover,
                 ),
               ),
@@ -39,9 +59,9 @@ class CharacterScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  cardData("Status: ", character.status!),
-                  cardData("Specie: ", character.species!),
-                  cardData("Origin: ", character.origin!.name!),
+                  cardData("Status: ", widget.character.status!),
+                  cardData("Specie: ", widget.character.species!),
+                  cardData("Origin: ", widget.character.origin!.name!),
                 ],
               ),
             ),
@@ -51,7 +71,7 @@ class CharacterScreen extends StatelessWidget {
                 fontSize: 17,
               ),
             ),
-            EpisodeList(size: size, character: character)
+            EpisodeList(size: size, character: widget.character)
           ],
         ),
       ),
