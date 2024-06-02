@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:spoty_try5/auth/services.dart';
 import 'package:spoty_try5/screens/zcreens.dart';
 import 'package:spoty_try5/auth/auth_service.dart';
+import 'package:spoty_try5/auth/user_model.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -138,6 +139,9 @@ class _SignupScreenState extends State<SignupScreen> {
       _isLoading = true;
     });
 
+    final String email = _email.text;    
+    final String password = _password.text;
+
     // Verifica si todos los campos están llenos
     if (_name.text.isEmpty || _email.text.isEmpty || _password.text.isEmpty) {
       // Muestra un AlertDialog con el mensaje de error
@@ -165,15 +169,13 @@ class _SignupScreenState extends State<SignupScreen> {
     }
 
     //Verifica si es un correo valido
-    final String email = _email.text;
     if (!EmailValidator.isValid(email)) {
       showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
             title: const Text('Error'),
-            content: const Text(
-                'Ingresa un correo valido'),
+            content: const Text('Ingresa un correo valido'),
             actions: <Widget>[
               TextButton(
                 onPressed: () {
@@ -188,11 +190,10 @@ class _SignupScreenState extends State<SignupScreen> {
       setState(() {
         _isLoading = false;
       });
-      return;       
+      return;
     }
 
     //Restricciones para la contraseña
-    final String password = _password.text;
     if (!PasswordValidator.isValid(password)) {
       showDialog(
         context: context,
@@ -218,17 +219,44 @@ class _SignupScreenState extends State<SignupScreen> {
       return; // No continuar con el proceso de registro
     }
 
-    //Crar registro
-    final user =
-        await _auth.createUserWithEmailAndPassword(_email.text, _password.text);
-    if (user != null) {
-      log("User Created Succesfully");
-      goToHome(context);
+    //Crear registro Firebase Authentication
+    try {
+      final userCredential = await _auth.createUserWithEmailAndPassword(
+          _email.text, _password.text);
+
+      if (userCredential != null) {
+        final user = userCredential.user;
+        await createUserDocument(user!);
+        log("User Created Successfully");
+        goToHome(context);
+      }
+    } catch (e) {
+      _showErrorDialog('Error en la creación del usuario: $e');
     }
 
     //Fin de proceso
     setState(() {
       _isLoading = false;
     });
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Cierra el AlertDialog
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

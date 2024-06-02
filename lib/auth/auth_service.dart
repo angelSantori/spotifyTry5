@@ -22,24 +22,22 @@ class AuthService {
     return null;
   }
 
-  Future<User?> createUserWithEmailAndPassword(
+  Future<UserCredential?> createUserWithEmailAndPassword(
       String email, String password) async {
     try {
-      final cred = await _auth.createUserWithEmailAndPassword(
+      return await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
-      return cred.user;
     } catch (e) {
       log("Something went wrong");
     }
     return null;
   }
 
-  Future<User?> loginUserWithEmailAndPassword(
+  Future<UserCredential?> loginUserWithEmailAndPassword(
       String email, String password) async {
-    try {
-      final cred = await _auth.signInWithEmailAndPassword(
+    try {      
+      return await _auth.signInWithEmailAndPassword(
           email: email, password: password);
-      return cred.user;
     } catch (e) {
       log("Something went wrong");
     }
