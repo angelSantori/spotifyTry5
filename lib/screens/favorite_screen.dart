@@ -74,17 +74,26 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
               itemCount: favoriteCharacters.length,
               itemBuilder: (context, index) {
                 Character character = favoriteCharacters[index];
-                return ListTile(
-                  leading: CircleAvatar(
-                    backgroundImage: NetworkImage(character
-                        .image!), // Aquí se carga la imagen desde la URL
-                  ),
-                  title: Text(character.name!),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () {
-                      _removeFavorite(context, character);
-                    },
+                return Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      radius: 30,
+                      backgroundImage: NetworkImage(character
+                          .image!), // Aquí se carga la imagen desde la URL
+                    ),
+                    title: Text(
+                      character.name!,
+                      style: const TextStyle(
+                        fontSize: 20,
+                      ),
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () {
+                        _removeFavorite(context, character);
+                      },
+                    ),
                   ),
                 );
               },
