@@ -43,132 +43,138 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final apiProvider = Provider.of<ApiProvider>(context);
-    return Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: const Text(
-            "Rick & Morty",
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          centerTitle: true,
-          leading: Builder(
-            builder: (context) {
-              return IconButton(
-                icon: const Icon(Icons.menu),
-                onPressed: () {
-                  Scaffold.of(context).openDrawer();
-                },
-              );
-            },
-          ),
-          actions: [
-            IconButton(
-                onPressed: () {
-                  showSearch(context: context, delegate: SearchCharacter());
-                },
-                icon: const Icon(Icons.search))
-          ],
-        ),
-        drawer: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: <Widget>[
-              DrawerHeader(
-                decoration: BoxDecoration(color: Colors.green[900]),
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'No es Spotify',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              ListTile(
-                leading: const Icon(
-                  Icons.favorite,
-                  color: Colors.green,
-                ),
-                title: const Text(
-                  'Favorites',
-                  style: TextStyle(
-                    color: Colors.green,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const FavoriteScreen()));
-                },
-              ),
-              ListTile(
-                leading: const Icon(
-                  Icons.logout,
-                  color: Colors.red,
-                ),
-                title: const Text(
-                  'Logout',
-                  style: TextStyle(
-                      color: Colors.red,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold),
-                ),
-                onTap: () async {
-                  bool? confirmLogout = await showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: const Text('Confirmación'),
-                        content:
-                            const Text('¿Seguro que quieres cerrar sesión?'),
-                        actions: <Widget>[
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop(false); //Cancelar
-                            },
-                            child: const Text('Cancelar'),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop(true); //Confirmar
-                            },
-                            child: const Text('Cerrar sesión'),
-                          )
-                        ],
-                      );
-                    },
-                  );
-                  if (confirmLogout == true) {
-                    await auth.signout();
-                    Navigator.of(context).pushNamedAndRemoveUntil(
-                        'login', (Route<dynamic> route) => false);
-                  }
-                },
-              ),
+
+    return WillPopScope(
+      onWillPop: () async {
+        return false;
+      },
+      child: Scaffold(
+          appBar: AppBar(
+            automaticallyImplyLeading: false,
+            title: const Text(
+              "Rick & Morty",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            centerTitle: true,
+            leading: Builder(
+              builder: (context) {
+                return IconButton(
+                  icon: const Icon(Icons.menu),
+                  onPressed: () {
+                    Scaffold.of(context).openDrawer();
+                  },
+                );
+              },
+            ),
+            actions: [
+              IconButton(
+                  onPressed: () {
+                    showSearch(context: context, delegate: SearchCharacter());
+                  },
+                  icon: const Icon(Icons.search))
             ],
           ),
-        ),
-        body: SizedBox(
-          height: double.infinity,
-          width: double.infinity,
-          child: apiProvider.characters.isNotEmpty
-              ? CharacterList(
-                  apiProvider: apiProvider,
-                  isLoading: isLoading,
-                  scrollController: scrollController,
-                )
-              : Center(
-                  child: CircularProgressIndicator(
-                    color: Colors.green[300],
+          drawer: Drawer(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: <Widget>[
+                DrawerHeader(
+                  decoration: BoxDecoration(color: Colors.green[900]),
+                  child: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'No es Spotify',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-        ));
+                ListTile(
+                  leading: const Icon(
+                    Icons.favorite,
+                    color: Colors.green,
+                  ),
+                  title: const Text(
+                    'Favorites',
+                    style: TextStyle(
+                      color: Colors.green,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const FavoriteScreen()));
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(
+                    Icons.logout,
+                    color: Colors.red,
+                  ),
+                  title: const Text(
+                    'Logout',
+                    style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  onTap: () async {
+                    bool? confirmLogout = await showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('Confirmación'),
+                          content:
+                              const Text('¿Seguro que quieres cerrar sesión?'),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(false); //Cancelar
+                              },
+                              child: const Text('Cancelar'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(true); //Confirmar
+                              },
+                              child: const Text('Cerrar sesión'),
+                            )
+                          ],
+                        );
+                      },
+                    );
+                    if (confirmLogout == true) {
+                      await auth.signout();
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                          'login', (Route<dynamic> route) => false);
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+          body: SizedBox(
+            height: double.infinity,
+            width: double.infinity,
+            child: apiProvider.characters.isNotEmpty
+                ? CharacterList(
+                    apiProvider: apiProvider,
+                    isLoading: isLoading,
+                    scrollController: scrollController,
+                  )
+                : Center(
+                    child: CircularProgressIndicator(
+                      color: Colors.green[300],
+                    ),
+                  ),
+          )),
+    );
   }
 }
