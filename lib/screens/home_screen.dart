@@ -81,14 +81,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 DrawerHeader(
                   decoration: BoxDecoration(color: Colors.green[900]),
                   child: const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
                         'No es Spotify',
                         style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                        ),
+                            color: Colors.white,
+                            fontSize: 55,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Bauhaus 93'),
                       ),
                     ],
                   ),
