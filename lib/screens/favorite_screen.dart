@@ -2,37 +2,48 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:spoty_try5/models/character_model.dart';
-import 'package:spoty_try5/widgets/zwidgets.dart';
-// Importa un widget para mostrar el detalle del personaje favorito
 
-class FavoriteScreen extends StatelessWidget {
-  const FavoriteScreen({super.key});
+class FavoriteScreen extends StatefulWidget {
+  const FavoriteScreen({Key? key});
+
+  @override
+  _FavoriteScreenState createState() => _FavoriteScreenState();
+}
+
+class _FavoriteScreenState extends State<FavoriteScreen> {
+  late Future<List<Character>> _favoriteCharactersFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _favoriteCharactersFuture = _getFavoriteCharacters();
+  }
 
   Future<List<Character>> _getFavoriteCharacters() async {
-  User? user = FirebaseAuth.instance.currentUser;
-  if (user != null) {
-    DocumentSnapshot userDoc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .get();
-    List<dynamic> favorites = userDoc.get('favorites');
-
-    List<Character> favoriteCharacters = [];
-    for (var characterId in favorites) {
-      DocumentSnapshot characterDoc = await FirebaseFirestore.instance
-          .collection('characters') // Assume you have a 'characters' collection
-          .doc(characterId)
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
           .get();
-      if (characterDoc.exists) {
-        Character character = Character.fromDocument(characterDoc);
-        favoriteCharacters.add(character);
-      }
-    }
+      List<dynamic> favorites = userDoc.get('favorites');
 
-    return favoriteCharacters;
+      List<Character> favoriteCharacters = [];
+      for (var characterId in favorites) {
+        DocumentSnapshot characterDoc = await FirebaseFirestore.instance
+            .collection('characters')
+            .doc(characterId)
+            .get();
+        if (characterDoc.exists) {
+          Character character = Character.fromDocument(characterDoc);
+          favoriteCharacters.add(character);
+        }
+      }
+
+      return favoriteCharacters;
+    }
+    return [];
   }
-  return [];
-}
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +57,7 @@ class FavoriteScreen extends StatelessWidget {
         centerTitle: true,
       ),
       body: FutureBuilder<List<Character>>(
-        future: _getFavoriteCharacters(),
+        future: _favoriteCharactersFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -56,21 +67,49 @@ class FavoriteScreen extends StatelessWidget {
             return const Center(child: Text('No favorites found'));
           } else {
             List<Character> favoriteCharacters = snapshot.data!;
-            // Impresión de la cantidad de personajes favoritos
-            print(
-                'Number of favorite characters: ${favoriteCharacters.length}');
             return ListView.builder(
               itemCount: favoriteCharacters.length,
               itemBuilder: (context, index) {
                 Character character = favoriteCharacters[index];
-                return CharacterCard(
-                    character:
-                        character); // Display the character using a custom widget
+                return ListTile(
+                  leading: CircleAvatar(
+                    backgroundImage: NetworkImage(character
+                        .image!), // Aquí se carga la imagen desde la URL
+                  ),
+                  title: Text(character.name!),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      _removeFavorite(context, character);
+                    },
+                  ),                  
+                );
               },
             );
           }
         },
       ),
     );
+  }
+
+  void _removeFavorite(BuildContext context, Character character) async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .update({
+        'favorites': FieldValue.arrayRemove([character.id.toString()])
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${character.name} removed from favorites'),
+        ),
+      );
+      // Actualizar la lista de personajes favoritos después de eliminar uno
+      setState(() {
+        _favoriteCharactersFuture = _getFavoriteCharacters();
+      });
+    }
   }
 }
