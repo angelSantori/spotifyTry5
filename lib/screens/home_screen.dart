@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:spoty_try5/provider/api_provider.dart';
+import 'package:spoty_try5/screens/zcreens.dart';
 import 'package:spoty_try5/widgets/zwidgets.dart';
 //import 'package:spoty_try5/auth/auth_service.dart';
 //import 'package:spoty_try5/screens/zcreens.dart';
@@ -86,12 +87,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               ListTile(
-                leading: Icon(Icons.book),
-                title: Text('Opción 1'),
+                leading: const Icon(Icons.favorite),
+                title: const Text('Favorites'),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const FavoriteScreen()));
+                },
               ),
-              ListTile(
-                leading: Icon(Icons.description),
-                title: Text('Opción 2'),
+              const ListTile(                
+                leading: Icon(Icons.logout),
+                title: Text('Logout'),
               ),
             ],
           ),
